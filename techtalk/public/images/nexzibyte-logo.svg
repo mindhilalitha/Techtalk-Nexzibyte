@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 100" width="100%" height="100%">
+  <defs>
+    <!-- Gradient for X top-left to bottom-right stroke -->
+    <linearGradient id="nexzi_x_grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9061F9" />
+      <stop offset="45%" stop-color="#7E3AF2" />
+      <stop offset="100%" stop-color="#6C2BD9" />
+    </linearGradient>
+
+    <!-- Gradient for X bottom-left to top-right stroke -->
+    <linearGradient id="nexzi_x_grad2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6C2BD9" />
+      <stop offset="50%" stop-color="#9061F9" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+
+    <!-- Center intersection facet shading for depth -->
+    <linearGradient id="nexzi_x_facet" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5B21B6" />
+      <stop offset="100%" stop-color="#7E3AF2" />
+    </linearGradient>
+  </defs>
+
+  <g id="nexzibyte-logo-mark" transform="translate(10, 10)">
+    <!-- NE text -->
+    <text x="0" y="66" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Montserrat', 'Outfit', sans-serif" font-weight="900" font-size="64" letter-spacing="1.5" fill="#0F172A">
+      NE
+    </text>
+
+    <!-- Stylized Geometric Vector X -->
+    <g transform="translate(98, 8)">
+      <!-- Top-left to bottom-right arm -->
+      <polygon points="0,0 20,0 72,68 52,68" fill="url(#nexzi_x_grad1)" />
+      
+      <!-- Bottom-left to top-right arm -->
+      <polygon points="0,68 20,68 72,0 52,0" fill="url(#nexzi_x_grad2)" />
+      
+      <!-- Center intersection facet for faceted geometric lighting -->
+      <polygon points="26,34 36,21 46,34 36,47" fill="url(#nexzi_x_facet)" opacity="0.9" />
+      
+      <!-- Top Right Accent Chevron -->
+      <polygon points="52,0 72,0 62,13 42,13" fill="#C084FC" opacity="0.75" />
+    </g>
+
+    <!-- ZIBYTE text -->
+    <text x="180" y="66" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Montserrat', 'Outfit', sans-serif" font-weight="900" font-size="64" letter-spacing="1.5" fill="#0F172A">
+      ZIBYTE
+    </text>
+  </g>
+</svg>

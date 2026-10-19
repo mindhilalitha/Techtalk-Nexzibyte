@@ -1,0 +1,10 @@
+{
+  "buildCommand": "npm --prefix techtalk run build",
+  "outputDirectory": "techtalk/dist",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

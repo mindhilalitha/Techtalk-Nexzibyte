@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+techtalk/node_modules/
+
+# Production Builds
+dist/
+techtalk/dist/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+venv/
+.venv/
+env/
+
+# Local databases & logs
+*.db
+techtalk_local.db
+*.log
+
+# Environment variables & secrets
+.env
+*.env
+.env.*
+backend/.env
+.neon
+
+# Temporary scratch & system files
+scratch/
+.agents/
+.DS_Store
+Thumbs.db

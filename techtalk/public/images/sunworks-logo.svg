@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 100" fill="none" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sw_ribbon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="35%" stop-color="#F59E0B" />
+      <stop offset="70%" stop-color="#EA580C" />
+      <stop offset="100%" stop-color="#DC2626" />
+    </linearGradient>
+  </defs>
+
+  <!-- Ribbon Infinity S Logo Mark -->
+  <path d="M 52 42 C 54 22, 44 8, 28 8 C 12 8, 4 22, 6 36 C 8 54, 30 58, 44 68 C 60 80, 56 102, 38 104 C 18 106, 6 92, 6 78" 
+        stroke="url(#sw_ribbon)" 
+        stroke-width="9" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"
+        fill="none" 
+        transform="translate(10, -8) scale(0.9)" />
+
+  <!-- "un" in Vibrant Orange -->
+  <text x="68" y="58" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="52" fill="#EA580C" letter-spacing="-1px">un</text>
+
+  <!-- "works" in Dark Charcoal -->
+  <text x="130" y="58" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="52" fill="#374151" letter-spacing="-1px">works</text>
+
+  <!-- Tagline: "energy.unlimited" -->
+  <text x="135" y="86" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="400" font-size="20" fill="#8C8C8C" letter-spacing="0.5px">
+    energy<tspan fill="#EA580C" font-style="normal" font-weight="700">.</tspan>unlimited
+  </text>
+</svg>

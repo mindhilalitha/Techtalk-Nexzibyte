@@ -1,0 +1,15 @@
+{
+  "name": "techtalk-nexzibyte-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix techtalk run dev",
+    "backend": "python backend/run.py",
+    "build": "npm --prefix techtalk run build",
+    "preview": "npm --prefix techtalk run preview"
+  },
+  "dependencies": {
+    "@neon/config": "^1.9.2",
+    "@neon/env": "^1.6.3"
+  }
+}
