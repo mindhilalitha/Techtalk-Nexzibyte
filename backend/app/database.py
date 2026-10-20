@@ -32,7 +32,9 @@ try:
 except Exception as e:
     logger.warning(f"PostgreSQL connection note: {e}. Using resilient local database.")
     from pathlib import Path
-    db_file_path = (Path(__file__).resolve().parent.parent / "techtalk_local.db").as_posix()
+    import tempfile
+    tmp_dir = tempfile.gettempdir()
+    db_file_path = (Path(tmp_dir) / "techtalk_local.db").as_posix()
     sqlite_url = f"sqlite:///{db_file_path}"
     engine = create_engine(
         sqlite_url,

@@ -538,8 +538,21 @@ class TechTalkApiClient {
           otp_required: false
         };
       } else {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.detail || "Invalid email or password.");
+        let errMessage = "";
+        try {
+          const errData = await res.json();
+          errMessage = errData.detail || errData.message;
+        } catch (_) {}
+        if (!errMessage) {
+          if (res.status === 405 || res.status === 404) {
+            errMessage = "Authentication service is routing on Vercel. Please refresh the page and try again.";
+          } else if (res.status >= 500) {
+            errMessage = "Authentication server temporarily unavailable. Please try again.";
+          } else {
+            errMessage = "Invalid email or password. Please verify your credentials.";
+          }
+        }
+        throw new Error(errMessage);
       }
     } catch (e) {
       if (e.message && e.message.includes("Failed to fetch")) {
@@ -563,8 +576,21 @@ class TechTalkApiClient {
         }
         return data;
       } else {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.detail || "Registration failed. Please check your details.");
+        let errMessage = "";
+        try {
+          const errData = await res.json();
+          errMessage = errData.detail || errData.message;
+        } catch (_) {}
+        if (!errMessage) {
+          if (res.status === 405 || res.status === 404) {
+            errMessage = "Registration service is updating. Please refresh and try again.";
+          } else if (res.status >= 500) {
+            errMessage = "Server error during registration. Please try again.";
+          } else {
+            errMessage = "Registration failed. Please check your details.";
+          }
+        }
+        throw new Error(errMessage);
       }
     } catch (e) {
       if (e.message && e.message.includes("Failed to fetch")) {

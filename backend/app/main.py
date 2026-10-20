@@ -68,6 +68,7 @@ def root():
 
 # Health Check
 @app.get("/api/health", tags=["System"])
+@app.get("/health", tags=["System"])
 def health_check():
     return {
         "status": "online",
@@ -77,17 +78,15 @@ def health_check():
         "docs": "/docs"
     }
 
-# Mount Routers
-app.include_router(auth_router, prefix="/api")
-app.include_router(users_router, prefix="/api")
-app.include_router(posts_router, prefix="/api")
-app.include_router(categories_router, prefix="/api")
-app.include_router(summits_router, prefix="/api")
-app.include_router(founder_meets_router, prefix="/api")
-app.include_router(speakers_router, prefix="/api")
-app.include_router(registrations_router, prefix="/api")
-app.include_router(stats_router, prefix="/api")
-app.include_router(contact_router, prefix="/api")
+# Mount Routers both with /api and without prefix for resilient Vercel routing
+all_routers = [
+    auth_router, users_router, posts_router, categories_router,
+    summits_router, founder_meets_router, speakers_router,
+    registrations_router, stats_router, contact_router
+]
+for r in all_routers:
+    app.include_router(r, prefix="/api")
+    app.include_router(r)
 
 if __name__ == "__main__":
     import uvicorn
