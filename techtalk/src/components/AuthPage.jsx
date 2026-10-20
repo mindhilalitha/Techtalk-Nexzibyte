@@ -211,7 +211,8 @@ export default function AuthPage({ defaultMode = "login" }) {
         isLoggedIn: true,
         is_verified: true
       });
-      const isAdmin = res.user?.role === "admin" || loginEmail.trim().toLowerCase().includes("nexzibyteadmin") || loginEmail.trim().toLowerCase().includes("admin");
+      const emailClean = loginEmail.trim().toLowerCase();
+      const isAdmin = (emailClean === "nexzibyte@gmail.com" || emailClean === "nexzibyteadmin@gmail.com") && res.user?.role === "admin";
       if (isAdmin) {
         showToast(`👑 Verification successful! Welcome to Command Center, ${res.user?.name || "Admin"}!`);
       } else {

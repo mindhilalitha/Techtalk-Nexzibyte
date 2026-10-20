@@ -80,6 +80,13 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
+    const emailClean = (user?.email || "").toLowerCase().trim();
+    const isStrictAdmin = isLoggedIn && (emailClean === "nexzibyte@gmail.com" || emailClean === "nexzibyteadmin@gmail.com");
+    if (!isStrictAdmin) {
+      showToast("Access restricted: Administrator privileges required.");
+      navigate("/profile", { replace: true });
+      return;
+    }
     loadDashboardData();
 
     // Auto-poll live database every 8s so user likes, saves, posts, registrations, passes appear regularly

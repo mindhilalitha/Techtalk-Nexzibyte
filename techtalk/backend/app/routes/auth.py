@@ -104,7 +104,7 @@ async def login(payload: UserLogin, db: Session = Depends(get_db)):
 
     user = db.query(User).filter(User.email == email_clean).first()
 
-    is_admin = email_clean in ["nexzibyteadmin@gmail.com", "nexzibyte@gmail.com", "mindhilalitha@gmail.com"]
+    is_admin = email_clean in ["nexzibyte@gmail.com", "nexzibyteadmin@gmail.com"]
 
     if not user:
         initials = "NA" if is_admin else email_clean.split("@")[0][:2].upper()
@@ -153,7 +153,9 @@ async def login(payload: UserLogin, db: Session = Depends(get_db)):
     # Ensure admin role for designated admin email
     if is_admin:
         user.role = "admin"
-        db.commit()
+    else:
+        user.role = "user"
+    db.commit()
 
     now = datetime.datetime.utcnow()
     # Generate fresh 6-digit OTP for login verification (for admin and users alike)
@@ -203,8 +205,10 @@ async def verify_email_otp(payload: VerifyEmailOTP, db: Session = Depends(get_db
 
     user.is_verified = True
     user.verification_otp = None
-    if email_clean in ["nexzibyteadmin@gmail.com", "nexzibyte@gmail.com"]:
+    if email_clean in ["nexzibyte@gmail.com", "nexzibyteadmin@gmail.com"]:
         user.role = "admin"
+    else:
+        user.role = "user"
     db.commit()
     db.refresh(user)
 

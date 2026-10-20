@@ -81,12 +81,14 @@ function RequireVerifiedMember({ children }) {
   return children;
 }
 
-// Route Guard: Enforce Admin Role & Authentication
+// Route Guard: Enforce Admin Role & Authentication (strictly nexzibyte@gmail.com)
 function RequireAdmin({ children }) {
   const { user, isLoggedIn } = useApp();
+  const emailClean = (user?.email || "").toLowerCase().trim();
+  const isStrictAdmin = isLoggedIn && (emailClean === "nexzibyte@gmail.com" || emailClean === "nexzibyteadmin@gmail.com");
 
-  if (!isLoggedIn || user?.role !== "admin") {
-    return <AuthPage defaultMode="login" />;
+  if (!isStrictAdmin) {
+    return <Navigate to="/profile" replace />;
   }
 
   return children;

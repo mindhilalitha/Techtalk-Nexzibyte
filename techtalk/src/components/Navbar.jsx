@@ -447,8 +447,8 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Admin Portal Shortcut Button for Admin users */}
-            {isLoggedIn && (user?.role === "admin" || user?.email === "nexzibyte@gmail.com") && (
+            {/* Admin Portal Shortcut Button strictly for nexzibyte@gmail.com */}
+            {isLoggedIn && (user?.email?.toLowerCase().trim() === "nexzibyte@gmail.com" || user?.email?.toLowerCase().trim() === "nexzibyteadmin@gmail.com") && (
               <Link
                 to="/admin"
                 className="nav-admin-btn-header"
@@ -522,8 +522,8 @@ export default function Navbar() {
                 <User size={18} />
                 <span>{user?.name || "M. L. S. V. Aiswarya"} (View Profile)</span>
               </Link>
-              {/* ADMIN COMMAND CENTER for admins */}
-              {(user?.role === "admin" || user?.email === "nexzibyte@gmail.com") && (
+              {/* ADMIN COMMAND CENTER strictly for nexzibyte@gmail.com */}
+              {isLoggedIn && (user?.email?.toLowerCase().trim() === "nexzibyte@gmail.com" || user?.email?.toLowerCase().trim() === "nexzibyteadmin@gmail.com") && (
                 <Link 
                   to="/admin"
                   className="mobile-nav-link-dark"

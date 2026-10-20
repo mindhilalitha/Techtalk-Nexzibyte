@@ -222,7 +222,8 @@ export default function LoginModal() {
         isLoggedIn: true,
         is_verified: true
       });
-      const isAdmin = res.user?.role === "admin" || email.trim().toLowerCase().includes("nexzibyteadmin") || email.trim().toLowerCase().includes("admin");
+      const emailClean = email.trim().toLowerCase();
+      const isAdmin = (emailClean === "nexzibyte@gmail.com" || emailClean === "nexzibyteadmin@gmail.com") && res.user?.role === "admin";
       if (isAdmin) {
         showToast(`👑 Welcome back to Command Center, ${res.user?.name || "Admin"}!`);
       } else {
