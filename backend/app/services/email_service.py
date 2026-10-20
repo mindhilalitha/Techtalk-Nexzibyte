@@ -117,12 +117,28 @@ def send_smtp_mail(to_email: str, subject: str, text_content: str, html_content:
         logger.warning(f"SMTP send failed ({e}). Fallback logged to console.")
         return False
 
+def resolve_clean_user_name(to_email: str, name: str = None) -> str:
+    """Helper to ensure authentic real names are used in all emails, preventing fake test names."""
+    if name and name.strip():
+        cleaned = name.strip()
+        if cleaned.lower() not in ["alex morgan", "string", "none", "null", "user", "member", "test", "test user"]:
+            return cleaned
+    clean_email = (to_email or "").lower().strip()
+    if clean_email in ["mindhilalitha@gmail.com", "aiswarya@nexzibyte.com"]:
+        return "Aiswarya Mindhi"
+    if clean_email in ["nexzibyteadmin@gmail.com", "nexzibyte@gmail.com"]:
+        return "NexziByte Super Admin"
+    # Format readable name from email username (e.g. john.doe@... -> John Doe)
+    prefix = clean_email.split("@")[0].replace(".", " ").replace("_", " ").replace("-", " ")
+    words = [w.capitalize() for w in prefix.split() if w and not w.isdigit()]
+    return " ".join(words) if words else "Member"
+
 async def send_verification_email(to_email: str, name: str, otp_code: str, verification_link: str = None) -> bool:
     """
     Sends a branded verification email with OTP according to NexziByte TechTalk format
     matching the exact modern dark card design with company logo and lime-green OTP badge.
     """
-    user_name = name if name and name.strip() else "Member"
+    user_name = resolve_clean_user_name(to_email, name)
     subject = f"Your TechTalk Login Code: {otp_code}"
     
     text_content = f"""Hey {user_name},
@@ -130,6 +146,8 @@ async def send_verification_email(to_email: str, name: str, otp_code: str, verif
 Your temporary login code to access TechTalk Community is:
 
 {otp_code}
+
+This code will expire in 5 minutes. Never share this code with anyone.
 
 If you think you've received this email in error, please ignore this email.
 
@@ -230,35 +248,33 @@ TechTalk Community | NexziByte Solutions
 
 async def send_welcome_email(to_email: str, name: str) -> bool:
     """
-    Sends the official NexziByte TechTalk Community welcome email to the user upon account creation:
-    Matches exact template requested:
-    - Hi [User Name],
-    - Welcome to Nexzibyte TechTalk! 🎉
-    - Thank you for creating your account. We're excited to have you join our community.
-    - Your account has been successfully created, and you can now explore TechTalk events, speakers, sessions, networking opportunities, and more.
-    - Start Exploring →
-    - If you have any questions, feel free to contact our support team.
-    - Regards, Nexzibyte Solutions / Nexzibyte TechTalk Team
+    Sends a simple, clean, and authentic NexziByte TechTalk account creation welcome email:
+    Hi [User Name],
+    Welcome to NexziByte TechTalk!
+    Your account has been successfully created.
     """
-    user_name = name if name and name.strip() else "Member"
-    subject = "Welcome to Nexzibyte TechTalk! 🎉"
+    user_name = resolve_clean_user_name(to_email, name)
+    subject = "Welcome to NexziByte TechTalk — Account Created Successfully 🎉"
     explore_url = settings.FRONTEND_URL or "http://localhost:5173"
     
     text_content = f"""Hi {user_name},
 
-Welcome to Nexzibyte TechTalk! 🎉
+Welcome to NexziByte TechTalk! 🎉
 
-Thank you for creating your account. We're excited to have you join our community.
+Your account has been successfully created. We're excited to have you join our developer and tech community.
 
-Your account has been successfully created, and you can now explore TechTalk events, speakers, sessions, networking opportunities, and more.
+Account Details:
+• Name: {user_name}
+• Email: {to_email}
 
-Start Exploring: {explore_url}
+You can now explore TechTalk summits, founder meets, read technical dispatches, and connect with peers:
+{explore_url}
 
-If you have any questions, feel free to contact our support team.
+If you have any questions or need support, reply to this email or contact support@nexzibyte.com.
 
 Regards,
-Nexzibyte Solutions
-Nexzibyte TechTalk Team
+NexziByte Solutions
+NexziByte TechTalk Team
 """
 
     logo_bytes = get_logo_image_bytes()
@@ -266,8 +282,8 @@ Nexzibyte TechTalk Team
 
     if has_logo:
         logo_html = """
-        <div style="background-color: #ffffff; border-radius: 10px; padding: 6px 12px; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-          <img src="cid:company_logo" alt="NexziByte TechTalk" height="30" style="height: 30px; width: auto; display: block; max-width: 140px; object-fit: contain;" />
+        <div style="background-color: #ffffff; border-radius: 10px; padding: 6px 14px; display: inline-block; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+          <img src="cid:company_logo" alt="NexziByte TechTalk" height="32" style="height: 32px; width: auto; display: block; max-width: 150px; object-fit: contain;" />
         </div>
         """
     else:
@@ -291,73 +307,75 @@ Nexzibyte TechTalk Team
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>{subject}</title>
     </head>
-    <body style="margin: 0; padding: 36px 16px; background-color: #0d0f17; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f1f5f9; line-height: 1.6;">
-      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; margin: 0 auto; background-color: #151824; border-radius: 20px; border: 1px solid #252b3d; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55); overflow: hidden;">
+    <body style="margin: 0; padding: 32px 16px; background-color: #0d0f17; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f1f5f9; line-height: 1.6;">
+      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 500px; margin: 0 auto; background-color: #151824; border-radius: 18px; border: 1px solid #252b3d; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); overflow: hidden;">
         
-        <!-- Top Gradient Accent Line -->
+        <!-- Top Accent Line -->
         <tr>
           <td height="4" style="background: linear-gradient(90deg, #6C2BD9, #4F46E5, #38BDF8);"></td>
         </tr>
 
         <tr>
-          <td style="padding: 34px 28px 30px 28px;">
+          <td style="padding: 32px 28px 28px 28px;">
             
             <!-- Brand Logo -->
-            <div style="margin-bottom: 24px;">
+            <div style="margin-bottom: 22px;">
               {logo_html}
             </div>
 
-            <!-- Main Greeting -->
-            <p style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: #e2e8f0;">
-              Hi <strong style="color: #ffffff;">{user_name}</strong>,
+            <!-- Greeting -->
+            <h2 style="margin: 0 0 14px 0; font-size: 21px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em;">
+              Hi {user_name},
+            </h2>
+
+            <p style="margin: 0 0 18px 0; font-size: 15px; color: #cbd5e1; line-height: 1.6;">
+              Welcome to <strong style="color: #ffffff;">NexziByte TechTalk</strong>! Your account has been successfully created. We're excited to have you join our developer and tech community.
             </p>
 
-            <!-- Welcome Header -->
-            <h1 style="margin: 0 0 18px 0; font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.02em; line-height: 1.3;">
-              Welcome to Nexzibyte TechTalk! 🎉
-            </h1>
+            <!-- Account Details Card -->
+            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #1b1f2e; border: 1px solid #2a3144; border-radius: 12px; margin: 0 0 20px 0; font-size: 14px;">
+              <tr>
+                <td style="padding: 12px 16px; border-bottom: 1px solid #242a3a; color: #94a3b8; font-weight: 500;">Account Name</td>
+                <td align="right" style="padding: 12px 16px; border-bottom: 1px solid #242a3a; color: #ffffff; font-weight: 700;">{user_name}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 16px; border-bottom: 1px solid #242a3a; color: #94a3b8; font-weight: 500;">Registered Email</td>
+                <td align="right" style="padding: 12px 16px; border-bottom: 1px solid #242a3a; color: #ffffff; font-weight: 600;">{to_email}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 16px; color: #94a3b8; font-weight: 500;">Status</td>
+                <td align="right" style="padding: 12px 16px; color: #34d399; font-weight: 700;">✓ Account Active</td>
+              </tr>
+            </table>
 
-            <!-- Message Card Container -->
-            <div style="background-color: #1c2130; border: 1px solid #2c3449; border-radius: 14px; padding: 22px 20px; margin-bottom: 22px;">
-              <p style="margin: 0 0 14px 0; font-size: 14.5px; color: #e2e8f0; line-height: 1.65;">
-                Thank you for creating your account. We're excited to have you join our community.
-              </p>
-              <p style="margin: 0 0 18px 0; font-size: 14px; color: #cbd5e1; line-height: 1.65;">
-                Your account has been successfully created, and you can now explore TechTalk events, speakers, sessions, networking opportunities, and more.
-              </p>
-              
-              <!-- Start Exploring Link / Button -->
-              <div style="margin: 18px 0 12px 0;">
-                <a href="{explore_url}" style="display: inline-block; background: linear-gradient(135deg, #6C2BD9 0%, #4F46E5 100%); color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; padding: 11px 22px; border-radius: 8px; box-shadow: 0 4px 14px rgba(108, 43, 217, 0.35); letter-spacing: 0.02em;">
-                  Start Exploring &rarr;
-                </a>
-              </div>
-            </div>
+            <p style="margin: 0 0 20px 0; font-size: 14px; color: #94a3b8; line-height: 1.6;">
+              You can now browse technical articles, register for developer summits and founder meets, and connect with technology leaders.
+            </p>
 
             <!-- Support Note -->
-            <p style="margin: 0 0 20px 0; font-size: 13.5px; color: #94a3b8; line-height: 1.55;">
-              If you have any questions, feel free to contact our support team.
+            <p style="margin: 0 0 22px 0; font-size: 13px; color: #64748b; line-height: 1.5;">
+              If you have any questions, feel free to reply directly to this email or reach us at <a href="mailto:support@nexzibyte.com" style="color: #a78bfa; text-decoration: none;">support@nexzibyte.com</a>.
             </p>
 
             <!-- Signoff -->
-            <div style="border-top: 1px solid #252b3d; padding-top: 18px; margin-top: 20px;">
-              <p style="margin: 0 0 4px 0; font-size: 14px; color: #cbd5e1; font-weight: 600;">
+            <div style="border-top: 1px solid #222738; padding-top: 16px;">
+              <p style="margin: 0 0 2px 0; font-size: 13.5px; color: #e2e8f0; font-weight: 600;">
                 Regards,
               </p>
-              <p style="margin: 0 0 2px 0; font-size: 14px; color: #ffffff; font-weight: 700;">
-                Nexzibyte Solutions
+              <p style="margin: 0 0 2px 0; font-size: 14px; color: #ffffff; font-weight: 800;">
+                NexziByte Solutions
               </p>
               <p style="margin: 0; font-size: 13px; color: #a78bfa; font-weight: 600;">
-                Nexzibyte TechTalk Team
+                NexziByte TechTalk Team
               </p>
             </div>
 
           </td>
         </tr>
 
-        <!-- Subtle Footer -->
+        <!-- Footer -->
         <tr>
-          <td style="padding: 16px 28px; background-color: #11141e; border-top: 1px solid #202434; text-align: center; font-size: 11.5px; color: #64748b;">
+          <td style="padding: 14px 28px; background-color: #10121a; border-top: 1px solid #1f232e; text-align: center; font-size: 11.5px; color: #64748b;">
             © 2026 NexziByte Solutions Pvt Ltd • TechTalk Community Platform
           </td>
         </tr>
@@ -389,11 +407,10 @@ async def send_payment_confirmation_email(
     Sends a high-end, real-time website invoice & digital pass confirmation email to the user
     after successful payment, complete with company logo, payment receipt, and QR code for venue entry.
     """
-    user_name = attendee_name if attendee_name and attendee_name.strip() else "Valued Attendee"
+    user_name = resolve_clean_user_name(to_email, attendee_name)
     clean_pass_type = pass_type.upper() if pass_type else "TECHTALK 2026 PASS"
     resolved_txn = txn_id or f"TXN-IN-{random.randint(10000000, 99999999)}"
     subject = f"Payment Successful! Your TechTalk 2026 Pass is Confirmed - {pass_id}"
-    portal_link = f"{settings.FRONTEND_URL}/passes"
     
     # Generate QR Code image bytes
     qr_content = qr_data or f"TECHTALK:{pass_id}:{user_name.upper()}:{clean_pass_type}:{amount}:VERIFIED"
@@ -419,9 +436,6 @@ Payment Method: {payment_method}
 Transaction ID: {resolved_txn}
 Status:         VERIFIED & VALID FOR EVENT ENTRY
 ==============================================
-
-You can view and download your full digital pass anytime by visiting:
-{portal_link}
 
 Please present your Pass ID and QR code at the check-in desk at the venue.
 
@@ -554,17 +568,6 @@ Team NexziByte TechTalk
               <tr>
                 <td style="padding: 14px 18px; color: #ffffff; font-weight: 800; font-size: 15px;">Total Paid</td>
                 <td align="right" style="padding: 14px 18px; color: #34d399; font-weight: 900; font-size: 17px;">{amount}</td>
-              </tr>
-            </table>
-
-            <!-- Quick Action CTA Button -->
-            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 28px;">
-              <tr>
-                <td align="center">
-                  <a href="{portal_link}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 12px; font-size: 15px; font-weight: 700; box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);">
-                    Access Your Pass in Portal →
-                  </a>
-                </td>
               </tr>
             </table>
 

@@ -20,7 +20,7 @@ def run_tests():
     reg_res = client.post("/api/auth/register", json={
         "email": test_email,
         "password": "SecurePassword123!",
-        "name": "Alex Morgan",
+        "name": "NexziByte Member",
         "role": "user"
     })
     assert reg_res.status_code == 200, f"Registration failed: {reg_res.text}"

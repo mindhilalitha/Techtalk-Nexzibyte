@@ -14,6 +14,7 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+    name: Optional[str] = None
 
 class VerifyEmailOTP(BaseModel):
     email: EmailStr

@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     # Database URL
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL", 
-        "postgresql://postgres:postgres@localhost:5432/nexzibyte_crm?schema=public"
+        "postgresql://neondb_owner:npg_x7zmtNqJlL8n@ep-young-cherry-aoz27kz5-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
     )
     
     # JWT Secrets
@@ -32,9 +32,9 @@ class Settings(BaseSettings):
     # SMTP Email Verification
     SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.gmail.com")
     SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
-    SMTP_USER: str = os.getenv("SMTP_USER", "")
-    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
-    EMAIL_FROM: str = os.getenv("EMAIL_FROM", "NexziByte Solutions <noreply@nexzibyte.com>")
+    SMTP_USER: str = os.getenv("SMTP_USER", "mindhilalitha@gmail.com")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "kjgwkgujipfhkyab")
+    EMAIL_FROM: str = os.getenv("EMAIL_FROM", "NexziByte TechTalk <mindhilalitha@gmail.com>")
 
     class Config:
         env_file = ".env"

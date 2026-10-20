@@ -9,8 +9,7 @@ import { FOUNDER_MEETS_LIST } from "../data/founderMeetsData.js";
 import { PUBLISHED_POSTS, DEFAULT_PROFILE, NOTIFICATIONS_INITIAL, SAVED_POSTS_INITIAL } from "../data/userProfileData.js";
 import { COURSES } from "../data/coursesData.js";
 import { INTERNSHIPS } from "../data/internshipsData.js";
-
-const API_BASE_URL = import.meta.env?.VITE_API_URL || "http://localhost:4000/api";
+const API_BASE_URL = import.meta.env?.VITE_API_URL || (typeof window !== "undefined" && window.location.hostname !== "localhost" ? "/api" : "/api");
 
 class TechTalkApiClient {
   constructor() {
@@ -517,14 +516,14 @@ class TechTalkApiClient {
   }
 
   // 8. Authentication & Email Verification
-  async login(email, password) {
+  async login(email, password, name = "") {
     const cleanEmail = (email || "").toLowerCase().trim();
 
     try {
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: cleanEmail, password })
+        body: JSON.stringify({ email: cleanEmail, password, name: name || undefined })
       });
       if (res.ok) {
         const data = await res.json();
@@ -543,16 +542,11 @@ class TechTalkApiClient {
         throw new Error(errData.detail || "Invalid email or password.");
       }
     } catch (e) {
-      if (e.message && !e.message.includes("Failed to fetch")) {
-        throw e;
+      if (e.message && e.message.includes("Failed to fetch")) {
+        throw new Error("Unable to connect to the authentication server. Please check your internet connection and try again.");
       }
+      throw e;
     }
-
-    return {
-      otp_required: true,
-      email: cleanEmail,
-      message: "A 6-digit verification code has been dispatched to your email. Please enter it to sign in."
-    };
   }
 
   async register(userData) {
@@ -570,33 +564,14 @@ class TechTalkApiClient {
         return data;
       } else {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.detail || "Registration failed.");
+        throw new Error(errData.detail || "Registration failed. Please check your details.");
       }
     } catch (e) {
-      if (e.message.includes("exists") || e.message.includes("failed")) {
-        throw e;
+      if (e.message && e.message.includes("Failed to fetch")) {
+        throw new Error("Unable to connect to registration server. Please check your internet connection.");
       }
+      throw e;
     }
-
-    const token = `tt_tok_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    this.setToken(token);
-    const cleanName = userData.name || userData.full_name || "Member";
-    const initials = cleanName.split(" ").filter(Boolean).map(n => n[0]).slice(0, 2).join("").toUpperCase() || "MB";
-
-    const user = {
-      ...DEFAULT_PROFILE,
-      email: userData.email,
-      name: cleanName,
-      fullName: cleanName,
-      phone: userData.phone || "",
-      contact: userData.phone || "",
-      role: userData.role || userData.title || "Senior Full Stack Developer",
-      title: userData.role || userData.title || "Senior Full Stack Developer",
-      avatarInitials: initials,
-      isLoggedIn: true,
-      is_verified: false
-    };
-    return { access_token: token, token_type: "bearer", user, otp_demo: "123456" };
   }
 
   async verifyToken(token) {
@@ -633,7 +608,7 @@ class TechTalkApiClient {
       const res = await fetch(`${API_BASE_URL}/auth/verify-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code })
+        body: JSON.stringify({ email: (email || "").toLowerCase().trim(), code: (code || "").trim() })
       });
       if (res.ok) {
         const data = await res.json();
@@ -641,21 +616,16 @@ class TechTalkApiClient {
           this.setToken(data.access_token);
         }
         return data;
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || "Invalid or expired verification code.");
       }
-    } catch {
-      // Fallback
+    } catch (e) {
+      if (e.message && e.message.includes("Failed to fetch")) {
+        throw new Error("Unable to connect to verification server. Please check your internet connection.");
+      }
+      throw e;
     }
-
-    if (code === "123456" || code === "000000" || (code && code.length === 6)) {
-      const token = `tt_tok_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      this.setToken(token);
-      return {
-        access_token: token,
-        token_type: "bearer",
-        user: { ...DEFAULT_PROFILE, email, isLoggedIn: true, is_verified: true }
-      };
-    }
-    throw new Error("Invalid or expired verification code. Please check your email or request a new code.");
   }
 
   async resendVerification(email) {
@@ -670,11 +640,11 @@ class TechTalkApiClient {
       const errData = await res.json().catch(() => ({}));
       throw new Error(errData.detail || "Failed to resend verification code.");
     } catch (e) {
-      if (e.message && !e.message.includes("Failed to fetch")) {
-        throw e;
+      if (e.message && e.message.includes("Failed to fetch")) {
+        throw new Error("Unable to connect to authentication server to resend code.");
       }
+      throw e;
     }
-    return { message: "Verification code sent successfully.", otp_demo: "123456" };
   }
 
   async forgotPassword(email) {

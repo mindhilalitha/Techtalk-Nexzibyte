@@ -104,17 +104,23 @@ async def login(payload: UserLogin, db: Session = Depends(get_db)):
 
     user = db.query(User).filter(User.email == email_clean).first()
 
-    is_admin = email_clean in ["nexzibyteadmin@gmail.com", "nexzibyte@gmail.com"]
+    is_admin = email_clean in ["nexzibyteadmin@gmail.com", "nexzibyte@gmail.com", "mindhilalitha@gmail.com"]
 
     if not user:
         initials = "NA" if is_admin else email_clean.split("@")[0][:2].upper()
         user_id = "usr_nexzibyte_admin" if is_admin else f"usr_{uuid.uuid4().hex[:12]}"
+        
+        derived_name = (payload.name and payload.name.strip()) or (
+            "NexziByte Super Admin" if is_admin else (
+                "Aiswarya Mindhi" if "mindhilalitha" in email_clean else " ".join([w.capitalize() for w in email_clean.split("@")[0].replace(".", " ").replace("_", " ").split()])
+            )
+        )
         user = User(
             id=user_id,
             email=email_clean,
             hashed_password=get_password_hash(payload.password or "admin"),
-            name="NexziByte Super Admin" if is_admin else email_clean.split("@")[0].capitalize(),
-            full_name="NexziByte TechTalk Admin" if is_admin else email_clean.split("@")[0].capitalize(),
+            name=derived_name,
+            full_name=derived_name,
             role="admin" if is_admin else "user",
             avatar_initials=initials,
             is_verified=True if is_admin else False,
@@ -123,6 +129,10 @@ async def login(payload: UserLogin, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
         db.refresh(user)
+    elif payload.name and payload.name.strip() and (not user.name or user.name.lower() in ["string", "alex morgan", "user", "none"]):
+        user.name = payload.name.strip()
+        user.full_name = payload.name.strip()
+        db.commit()
 
     # Verify password
     if user.hashed_password:
@@ -152,11 +162,18 @@ async def login(payload: UserLogin, db: Session = Depends(get_db)):
     user.otp_expires_at = now + datetime.timedelta(minutes=10)
     db.commit()
 
-    print(f"[AUTH LOGIN] Generated OTP {otp_code} for {user.email}. Dispatching via SMTP...")
+    real_user_name = user.full_name or user.name or email_clean.split("@")[0].capitalize()
+    if real_user_name.lower() in ["alex morgan", "string", "none", "null", "user"]:
+        real_user_name = "Aiswarya Mindhi" if "mindhilalitha" in email_clean else " ".join([w.capitalize() for w in email_clean.split("@")[0].replace(".", " ").replace("_", " ").split()])
+        user.name = real_user_name
+        user.full_name = real_user_name
+        db.commit()
 
-    # Dispatch real branded OTP email to user/admin's inbox
+    print(f"[AUTH LOGIN] Generated OTP {otp_code} for {user.email}. Dispatching via SMTP (Recipient name: {real_user_name})...")
+
+    # Dispatch real branded OTP email to user/admin's inbox with their authentic name
     try:
-        await send_verification_email(user.email, user.name, otp_code)
+        await send_verification_email(user.email, real_user_name, otp_code)
         print(f"[AUTH LOGIN] Real OTP email successfully delivered to {user.email}")
     except Exception as e:
         print(f"[WARN] Failed to send login verification email: {e}")
@@ -265,10 +282,14 @@ async def resend_verification_otp(payload: ResendOTP, db: Session = Depends(get_
     user.otp_expires_at = now + datetime.timedelta(minutes=15)
     db.commit()
 
-    print(f"[AUTH RESEND] Fresh OTP {otp_code} generated for {user.email}. Sending via SMTP...")
+    real_name = user.full_name or user.name or email_clean.split("@")[0].capitalize()
+    if real_name.lower() in ["alex morgan", "string", "none", "null", "user"]:
+        real_name = "Aiswarya Mindhi" if "mindhilalitha" in email_clean else email_clean.split("@")[0].capitalize()
+
+    print(f"[AUTH RESEND] Fresh OTP {otp_code} generated for {user.email} ({real_name}). Sending via SMTP...")
     verification_link = f"{settings.FRONTEND_URL}/verify?token={token_str}"
     try:
-        await send_verification_email(user.email, user.name, otp_code, verification_link)
+        await send_verification_email(user.email, real_name, otp_code, verification_link)
         print(f"[AUTH RESEND] Email delivered to {user.email}")
     except Exception as e:
         print(f"[AUTH RESEND ERROR] Failed to send email: {e}")
